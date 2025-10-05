@@ -1,0 +1,427 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 NASA Eyes on Asteroids - Interactive Exploration</title>
+    <link rel="stylesheet" href="{% static 'css/explore.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            {% load i18n %}
+            <h1>{% trans "Asteroid Odyssey" %}</h1>
+
+            <div style="position:absolute; top:12px; right:16px;">
+                <form action="{% url 'set_language' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <button type="submit" name="language" value="tr">TR</button>
+                </form>
+                <form action="{% url 'set_language' %}" method="post" style="display:inline; margin-left:6px;">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <button type="submit" name="language" value="en">EN</button>
+                </form>
+            </div>
+        </div> 
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="nasa-eyes-section">
+                    <div class="nasa-eyes-header">
+                        <h3>🌌 NASA Eyes on Asteroids - 3D View</h3>
+                        <div class="view-toggle">
+                            <button class="toggle-btn active" onclick="loadNASAView('solar-system')">🌞 Solar System</button>
+                            <button class="toggle-btn" onclick="loadNASAView('earth-view')">🌍 Earth View</button>
+                        </div>
+                    </div>
+                    <iframe 
+                        id="nasa-eyes-iframe" 
+                        src="https://eyes.nasa.gov/apps/asteroids/" 
+                        title="NASA Eyes on Asteroids">
+                    </iframe>
+                </div>
+                
+                <div class="simulation-controls">
+                    <h3 style="color: #ff6b35; margin-bottom: 15px;">🎮 Simulation Controls</h3>
+                    
+                    <div class="control-row">
+                        <a href="{% url 'videos' %}" class="btn btn-secondary">📺 Videos</a>
+                        <a href="#" id="open-dictionary-btn" class="btn btn-secondary">🛸 Dictionary</a>
+                        <a href="{% url 'game' %}" class="btn btn-secondary">🎮 Game</a>
+                        <!-- New button: Simulator -->
+                        <a href="{% url 'simulator' %}" class="btn btn-secondary">🛰️ Simulator</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="asteroid-list-section">
+                    <div class="section-header">
+                        <div class="section-title">📡 Upcoming Asteroids ({{ asteroid_count }})</div>
+                    </div>
+                    
+                    <div id="asteroid-list">
+                        <!-- Asteroidler buraya yüklenecek -->
+                        {% for asteroid in asteroids %}
+                            <div class="asteroid-card">
+                            <div class="asteroid-header">
+                                <div>
+                                    <div class="asteroid-name">Asteroid Name: {{ asteroid.name }}</div>
+                                    <div class="asteroid-id">ID: {{ asteroid.id }}</div>
+                                </div>
+                                <img
+                                    alt="asteroid-image"
+                                    class="asteroid-image"
+                                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E"
+                                    data-name="{{ asteroid.name }}"
+                                    data-asteroid-id="{{ asteroid.id }}"
+                                    data-diameter-min="{{ asteroid.diameter_min }}"
+                                    data-diameter-max="{{ asteroid.diameter_max }}"
+                                    data-magnitude="{{ asteroid.abs_magnitude }}"
+                                    data-distance="{{ asteroid.distance_km }}"
+                                    data-velocity="{{ asteroid.velocity_kph }}"
+                                    data-hazardous="{{ asteroid.hazardous }}"
+                                />
+                            </div>
+
+                            <div class="asteroid-info">
+                                <div class="info-item">
+                                    <span>📏</span>
+                                    <span> <strong>Diameter:</strong> <br> {{ asteroid.diameter_min }} - {{ asteroid.diameter_max }} meters</span>
+                                </div>
+                                <div class="info-item">
+                                    <span>🌟</span>
+                                    <span> <strong>Brightness:</strong> <br> {{ asteroid.abs_magnitude }} H</span>
+                                </div>
+                                <div class="info-item">
+                                    <span>📅</span>
+                                    <span> <strong>Closest Approach Date:</strong> <br> {{ asteroid.approach_date }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span>📍</span>
+                                    <span> <strong>Approach Distance:</strong> <br> {{ asteroid.distance_km }} km</span>
+                                </div>
+                                <div class="info-item">
+                                    <span>⚡</span>
+                                    <span> <strong>Approach Speed:</strong> <br> {{ asteroid.velocity_kph }} km/h</span>
+                                </div>
+                            </div>
+
+                            {% if asteroid.hazardous == True %}
+                                <div class="risk-badge risk-hazard">⚠️ POTENTIAL HAZARD</div>
+                            {% endif %}
+
+                            {% if asteroid.is_sentry == True %}
+                                <div class="risk-badge risk-hazard">⚠️ NASA Sentry Object</div>
+                            {% endif %}
+                            <div class="asteroid-actions">
+                                <a href="/details/{{ asteroid.id }}" style="text-decoration: none;" class="action-btn">ℹ️ Details</a>
+                                <button class="action-btn" onclick="viewInNASA('{{ asteroid.name_3d }}')">🌌 3D View</button>
+                            </div>
+                        </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="impact-details" id="impact-details" style="display: none;">
+                        <h3 id="selected-asteroid-name">Select an Asteroid</h3>
+                    <div id="impact-calculations"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/explore.js' %}"></script>
+        <!-- Çıtır Sözlük Popup -->
+        <style>
+        /* Dictionary popup styles (embedded to avoid extra file) */
+        .dict-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:none; z-index:998; }
+        .dict-overlay.show { display:block; }
+        .dict-popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0f1b26; padding:20px; border-radius:14px; width:90%; max-width:900px; max-height:80%; overflow-y:auto; display:none; z-index:999; color:#e8f6ff; text-align:left; }
+        .dict-popup.show { display:block; }
+        .dict-popup h2 { margin-top:0; text-align:center; }
+        .glossary { display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-top:20px; }
+        .term { background:#1a2d40; padding:10px; border-radius:10px; cursor:pointer; transition:background 0.2s ease; text-align:center; }
+        .term:hover { background:#264a6e; }
+        #definitionPopup { max-width:600px; max-height:90%; text-align:left; padding:30px; }
+        #definitionPopup h3 { text-align:center; color:#2b6cb0; margin-top:0; font-size:24px; border-bottom:2px solid #1a2d40; padding-bottom:10px; margin-bottom:15px; }
+        #definitionPopup p { font-size:16px; line-height:1.6; margin:0; }
+        .dict-close { float:right; font-size:24px; cursor:pointer; color:#fff; }
+        </style>
+
+        <div id="dictOverlay" class="dict-overlay"></div>
+        <div id="dictMainPopup" class="dict-popup" aria-hidden="true">
+            <span class="dict-close" id="dictCloseMain">&times;</span>
+            <h2>Space Glossary</h2>
+            <div class="glossary" id="glossaryContainer"></div>
+        </div>
+        <div id="definitionPopup" class="dict-popup" aria-hidden="true">
+            <span class="dict-close" id="dictCloseDef">&times;</span>
+            <h3 id="defTermTitle"></h3>
+            <p id="defTermContent"></p>
+        </div>
+
+        <script>
+        (function(){
+            const terms = [
+                { word:"Asteroid", def:"Asteroids are small, rocky or metallic bodies that orbit the Sun. They range in size from meters to hundreds of kilometers and are often classified by composition into C-type (carbonaceous), S-type (silicate) and M-type (metal-rich)." },
+                { word:"Meteor", def:"A meteor is the streak of light produced when a meteoroid enters Earth's atmosphere and heats up due to friction. Commonly called a 'shooting star'." },
+                { word:"Meteoroid", def:"A small object in space (from dust to meter-scale rocks) that has not yet entered an atmosphere." },
+                { word:"Meteorite", def:"A meteorite is a fragment of a meteoroid or asteroid that survives passage through the atmosphere and lands on Earth's surface." },
+                { word:"Comet", def:"Comets are icy bodies composed of dust, rock and volatile ices. When they approach the Sun the ices sublimate and form visible tails of gas and dust." },
+                { word:"Asteroid Belt", def:"The region between Mars anRd Jupiter that contains many small bodies left over from the early Solar System." },
+                { word:"Trojan Asteroids", def:"Asteroids that share an orbit with a planet and cluster near stable Lagrange points (for example Jupiter Trojans)." },
+                { word:"Near-Earth Object (NEO)", def:"An asteroid or comet whose orbit brings it close to Earth's orbit; these objects are monitored for impact risk." },
+                { word:"Meteor Shower", def:"An event where many meteoroids enter Earth's atmosphere in a short period, producing many visible meteors (e.g., Perseids)." },
+                { word:"Impact Crater", def:"A depression formed on a planetary surface when a meteoroid, asteroid or comet strikes at high speed." },
+                { word:"Dwarf Planet", def:"A body larger than typical asteroids but smaller than planets; examples include Ceres and Pluto." },
+                { word:"Planetesimal", def:"Small building-block bodies that combined to form planets during the early Solar System." },
+                { word:"Oort Cloud", def:"A distant spherical reservoir of icy bodies surrounding the Solar System and a source of long-period comets." },
+                { word:"Kuiper Belt", def:"A region beyond Neptune populated with icy bodies, including many dwarf planets and short-period comets." },
+                { word:"Source Reservoirs", def:"Regions such as the Oort Cloud and Kuiper Belt that supply comets and small bodies." },
+                { word:"Rare Elements", def:"Valuable metals such as gold, platinum and other elements sometimes found in meteorites." },
+                { word:"Carbonaceous Chondrite", def:"A primitive meteorite type rich in carbon and often containing hydrated minerals; important for studying the early Solar System." },
+                { word:"Iron Meteorite", def:"Meteorites rich in iron and nickel that inform us about metallic cores of early bodies." },
+                { word:"Stony Meteorite", def:"Meteorites composed mainly of silicate minerals; common samples from the Solar System's early history." },
+                { word:"Spectroscopy", def:"The study of light from astronomical objects to determine chemical composition and physical properties." },
+                { word:"Albedo", def:"The fraction of incident sunlight a body's surface reflects; low albedo is dark, high albedo is bright." },
+                { word:"Gravity Assist", def:"A spacecraft maneuver that uses a planet's gravity to change speed and direction." },
+                { word:"Gravitational Perturbation", def:"Changes in an object's orbit caused by the gravitational influence of other bodies." },
+                { word:"Orbital Resonance", def:"A condition where orbital periods of two bodies are in a simple ratio, causing recurring gravitational effects." },
+                { word:"Spacecraft (Probe)", def:"Robotic vehicles sent to study planets, asteroids and other targets, equipped with instruments and cameras." },
+                { word:"Spectral Type", def:"Classification of asteroids by surface composition (for example C-type, S-type, M-type)." },
+                { word:"Regolith", def:"Loose dust and broken rock that covers the surface of asteroids, moons and planets." },
+                { word:"Impact Simulation", def:"Computer models used to study the effects and outcomes of asteroid impacts." },
+                { word:"Ground Observatory", def:"Earth-based telescopes and facilities used to observe asteroids and other objects." },
+                { word:"Space Telescope", def:"Space-based observatories (e.g., Hubble, JWST) that observe astronomical targets without atmospheric interference." }
+            ];
+
+            const glossaryContainer = document.getElementById("glossaryContainer");
+            const mainPopup = document.getElementById("dictMainPopup");
+            const definitionPopup = document.getElementById("definitionPopup");
+            const overlay = document.getElementById("dictOverlay");
+            const defTitle = document.getElementById("defTermTitle");
+            const defContent = document.getElementById("defTermContent");
+            const openBtn = document.getElementById("open-dictionary-btn");
+            const closeMain = document.getElementById("dictCloseMain");
+            const closeDef = document.getElementById("dictCloseDef");
+
+            function openPopup(popupElement){ popupElement.classList.add('show'); popupElement.setAttribute('aria-hidden','false'); overlay.classList.add('show'); }
+            function closePopup(popupElement){ popupElement.classList.remove('show'); popupElement.setAttribute('aria-hidden','true'); if(!mainPopup.classList.contains('show') && !definitionPopup.classList.contains('show')) overlay.classList.remove('show'); }
+
+            terms.forEach(t => {
+                const div = document.createElement('div'); div.className='term'; div.innerHTML = `<strong>${t.word}</strong>`;
+                div.addEventListener('click', ()=>{ defTitle.textContent = t.word; defContent.textContent = t.def; closePopup(mainPopup); openPopup(definitionPopup); });
+                glossaryContainer.appendChild(div);
+            });
+
+            openBtn.addEventListener('click', (e)=>{ e.preventDefault(); openPopup(mainPopup); });
+            closeMain.addEventListener('click', ()=>{ closePopup(mainPopup); });
+            closeDef.addEventListener('click', ()=>{ closePopup(definitionPopup); openPopup(mainPopup); });
+            overlay.addEventListener('click', ()=>{ closePopup(mainPopup); closePopup(definitionPopup); });
+        })();
+        </script>
+
+    <script>
+    // Generate unique SVG visuals for each asteroid card using a seeded RNG
+    (function(){
+        function xfnv1a(str) {
+            // 32-bit FNV-1a hash
+            let h = 2166136261 >>> 0;
+            for (let i = 0; i < str.length; i++) {
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return h >>> 0;
+        }
+
+        function mulberry32(a) {
+            return function() {
+                var t = a += 0x6D2B79F5;
+                t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+
+        function pickColor(rng) {
+            // Meteor-like palette (browns/greys/ochres) - intentionally no green hues
+            const palette = [
+                'hsl(25 28% 46%)', // warm brown-gray
+                'hsl(18 30% 44%)',
+                'hsl(12 22% 40%)',
+                'hsl(8 16% 48%)',
+                'hsl(0 12% 52%)',
+                'hsl(30 22% 42%)',
+                'hsl(14 18% 38%)'
+            ];
+            const idx = Math.floor(rng() * palette.length);
+            return palette[idx];
+        }
+
+        function makeAsteroidSVG(opts) {
+            const { seedStr, diameter, magnitude, hazardous } = opts;
+            const seed = xfnv1a(seedStr + '|' + (diameter||'') + '|' + (magnitude||''));
+            const rng = mulberry32(seed);
+
+            const w = 100;
+            const h = 100;
+
+            // choose main meteor color (no green), spots are black for high-contrast
+            const mainColor = pickColor(rng);
+            const spotColor = '#111217';
+            const rimColor = 'rgba(0,0,0,0.22)';
+
+            // choose smooth shape type (0: layered ellipses, 1: smooth wobbly path)
+            const shapeType = Math.floor(rng()*2);
+
+            let shapeSvg = '';
+            if (shapeType === 0) {
+                // layered, softened ellipses with radial gradient
+                const rx = 28 + Math.floor(rng()*18);
+                const ry = Math.floor(rx * (0.7 + rng()*0.45));
+                const cx = 50 + (rng()-0.5)*8;
+                const cy = 50 + (rng()-0.5)*6;
+
+                // use solid fill (no gradient) for meteor-like appearance
+                shapeSvg += `<ellipse cx='${Math.round(cx)}' cy='${Math.round(cy)}' rx='${rx}' ry='${ry}' fill='${mainColor}' stroke='${rimColor}' stroke-width='1.5' />`;
+
+                // subtle craters (soft ellipses) - cap to max 3, avoid overlaps
+                const maxSpots = 3;
+                const desiredSpots = 1 + Math.floor(rng()*3); // 1..3
+                const spots = Math.min(maxSpots, desiredSpots);
+                const placed = [];
+                for (let i=0;i<spots;i++){
+                    let attempts = 0;
+                    let placedOk = false;
+                    let sx, sy, srx, sry;
+                    while(!placedOk && attempts < 20){
+                        attempts++;
+                        sx = Math.round(cx + (rng()-0.5)*rx*0.6);
+                        sy = Math.round(cy + (rng()-0.5)*ry*0.5);
+                        srx = 3 + Math.floor(rng()*7); // size
+                        sry = Math.max(2, Math.floor(srx * (0.6 + rng()*0.3)));
+
+                        // check overlap and distance with existing placed spots
+                        placedOk = true;
+                        for (const p of placed){
+                            const dx = p.x - sx;
+                            const dy = p.y - sy;
+                            const dist2 = dx*dx + dy*dy;
+                            const minDist = (p.rx + srx) * 1.2; // ensure they don't touch
+                            const maxDist = Math.max(18, rx * 0.9); // not too far
+                            if (dist2 < (minDist*minDist) || dist2 > (maxDist*maxDist)) { placedOk = false; break; }
+                        }
+                    }
+                    if (!placedOk) { continue; }
+
+                    // larger spots are lighter gray
+                    const sizeFactor = Math.min(1, srx / 10);
+                    // base dark gray '#111217' -> compute lighter gray by interpolation
+                    const baseGray = 17; // 0x11
+                    const lightGray = Math.round(baseGray + sizeFactor * 40); // up to ~57
+                    const spotFill = `rgb(${lightGray},${lightGray},${lightGray})`;
+
+                    shapeSvg += `<ellipse cx='${sx}' cy='${sy}' rx='${srx}' ry='${sry}' fill='${spotFill}' opacity='0.95'/>`;
+                    placed.push({ x: sx, y: sy, rx: srx });
+                }
+
+                // light soft rim
+                shapeSvg += `<ellipse cx='${Math.round(cx)}' cy='${Math.round(cy)}' rx='${rx}' ry='${ry}' fill='none' stroke='rgba(0,0,0,0.12)' stroke-width='4'/>`;
+
+            } else {
+                // smooth wobbly path using bezier curves for organic meteor-like silhouette
+                const cx = 50; const cy = 50;
+                const baseR = 30 + Math.floor(rng()*18);
+                const pts = [];
+                const steps = 10;
+                for (let i=0;i<steps;i++){
+                    const ang = (i/steps)*Math.PI*2;
+                    const r = baseR * (0.75 + rng()*0.5);
+                    const x = cx + Math.cos(ang)*r + (rng()-0.5)*6;
+                    const y = cy + Math.sin(ang)*r + (rng()-0.5)*6;
+                    pts.push([x,y]);
+                }
+                // build smooth path from points
+                let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)} `;
+                for (let i=1;i<pts.length;i++){
+                    const prev = pts[i-1];
+                    const cur = pts[i];
+                    const cx1 = (prev[0] + cur[0]) / 2;
+                    const cy1 = (prev[1] + cur[1]) / 2;
+                    d += `Q ${prev[0].toFixed(1)} ${prev[1].toFixed(1)} ${cx1.toFixed(1)} ${cy1.toFixed(1)} `;
+                }
+                // close with last curve to first
+                d += `T ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)} Z`;
+
+                shapeSvg += `<path d='${d}' fill='${mainColor}' stroke='${rimColor}' stroke-width='1.5'/>`;
+
+                // soft crater textures - cap and avoid overlaps
+                const maxCraters = 3;
+                const desiredCraters = 1 + Math.floor(rng()*3);
+                const craters = Math.min(maxCraters, desiredCraters);
+                const placed2 = [];
+                for (let i=0;i<craters;i++){
+                    let attempts = 0;
+                    let placedOk = false;
+                    let cx2, cy2, r2;
+                    while(!placedOk && attempts < 20){
+                        attempts++;
+                        cx2 = Math.round(30 + Math.floor(rng()*40));
+                        cy2 = Math.round(30 + Math.floor(rng()*40));
+                        r2 = 3 + Math.floor(rng()*8);
+                        // distance checks with existing
+                        placedOk = true;
+                        for (const p of placed2){
+                            const dx = p.x - cx2;
+                            const dy = p.y - cy2;
+                            const minDist = (p.r + r2) * 1.2;
+                            const maxDist = Math.max(18, baseR * 0.9);
+                            if ((dx*dx + dy*dy) < (minDist*minDist) || (dx*dx + dy*dy) > (maxDist*maxDist)) { placedOk = false; break; }
+                        }
+                    }
+                    if (!placedOk) continue;
+                    // larger crater lighter gray
+                    const sizeFactor = Math.min(1, r2 / 10);
+                    const baseGray = 17;
+                    const lightGray = Math.round(baseGray + sizeFactor * 40);
+                    const spotFill = `rgb(${lightGray},${lightGray},${lightGray})`;
+                    shapeSvg += `<ellipse cx='${cx2}' cy='${cy2}' rx='${r2}' ry='${Math.max(2,Math.floor(r2*0.6))}' fill='${spotFill}' opacity='0.95'/>`;
+                    placed2.push({ x: cx2, y: cy2, r: r2 });
+                }
+            }
+
+            // highlight if hazardous
+            const hazardOverlay = hazardous == 'True' || hazardous === true ? `<circle cx='80' cy='20' r='10' fill='rgba(255,40,40,0.9)'/>` : '';
+
+            const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' width='100' height='100'>
+                <rect width='100%' height='100%' fill='rgba(0,0,0,0)' />
+                ${shapeSvg}
+                ${hazardOverlay}
+            </svg>`;
+
+            return svg;
+        }
+
+        function applyAsteroidImages(){
+            document.querySelectorAll('.asteroid-image').forEach(img => {
+                try{
+                    const id = img.getAttribute('data-asteroid-id') || img.getAttribute('data-name') || '';
+                    const diameter = img.getAttribute('data-diameter-min') || '';
+                    const magnitude = img.getAttribute('data-magnitude') || '';
+                    const hazardous = img.getAttribute('data-hazardous') || false;
+
+                    const svg = makeAsteroidSVG({ seedStr: id, diameter: diameter, magnitude: magnitude, hazardous: hazardous });
+                    const uri = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+                    img.src = uri;
+                }catch(e){ console.error('Asteroid image generation error', e); }
+            });
+        }
+
+        // run once DOM is ready
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyAsteroidImages); else applyAsteroidImages();
+    })();
+    </script>
+</body>
+</html>

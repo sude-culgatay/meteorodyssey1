@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roketi Yakala</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* Slate 900 - Dark space background */
+            color: #E2E8F0; /* Slate 200 */
+            overflow: hidden; 
+            position: relative; 
+        }
+
+        .stars-background {
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 60px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 120px 150px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 200px 100px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 300px 50px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 350px 180px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 420px 220px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 500px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 580px 120px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 650px 250px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 700px 80px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 780px 200px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 850px 150px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 920px 280px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1000px 100px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1050px 210px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1120px 40px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1200px 190px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1280px 270px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1350px 60px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1400px 230px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1480px 10px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1550px 250px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1600px 130px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1680px 300px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1750px 50px, #fff, rgba(0,0,0,0));
+            background-size: 1800px 300px; 
+            background-repeat: repeat; 
+            background-attachment: fixed; 
+        }
+        
+    /* Main title style - MATCH NEW THEME */
+        .game-title { 
+            text-shadow: 0 0 15px #10B981; /* Green glow effect */
+            font-size: 3rem; 
+            margin-bottom: 20px;
+        }
+
+    /* --- Climb area styles --- */
+        #progression-container {
+            position: relative;
+            width: 200px;
+            height: 100%;
+        }
+
+    /* ROCKET VISUAL NOTE: fas fa-rocket, vertical and white */
+        #rocket {
+            font-size: 80px; 
+            color: #FFFFFF; /* Beyaz roket rengi */
+            text-shadow: 0 0 20px #FFFFFF, 0 0 10px #60A5FA; /* Beyaz ve Mavi-Beyaz glow efekti */
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg); /* Slightly angled rocket */
+            transition: top 0.5s ease-in-out, color 0.5s ease, transform 0.5s ease; 
+        }
+
+    /* ROCKET READY/ARRIVAL APPEARANCE */
+        #rocket.ready {
+            color: #10B981; /* Green light */
+            text-shadow: 0 0 30px #10B981;
+            transform: translateX(-50%) rotate(0deg); /* Stand upright when reached */
+        }
+        
+    /* Close button CSS (Question Panel) */
+        #close-question-button {
+            top: -15px; 
+            right: -15px; 
+            position: absolute; 
+            z-index: 20; 
+        }
+        
+    /* Ensure right column is relative */
+        #question-right-panel {
+            position: relative;
+        }
+
+
+    /* OTHER STYLES (Ladder, Climber, Modal Animations, etc.) unchanged */
+        #ladder-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 40px;
+            height: 80%; 
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column-reverse; 
+            justify-content: space-between; 
+            padding-bottom: 10px; 
+        }
+
+        .ladder-step {
+            width: 100%;
+            height: 3px; 
+            background-color: #64748B;
+            border-radius: 1.5px;
+            transition: background-color 0.5s ease;
+        }
+
+        #climber {
+            position: absolute;
+            font-size: 40px;
+            color: #E2E8F0; 
+            transition: bottom 0.5s ease-in-out, color 0.5s ease, transform 0.5s ease;
+            left: calc(50% - 20px); 
+        }
+        
+        #climber.falling {
+            transition: bottom 1s cubic-bezier(0.6, -0.28, 0.735, 0.045), transform 1s ease-in; 
+            transform: rotate(-180deg);
+        }
+
+    /* Question selection button styles */
+        #pyramid-container {
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%;
+            max-width: 400px; 
+            padding-top: 20px;
+        }
+
+        .pyramid-level {
+            width: 300px; 
+            margin-top: 10px; 
+            padding: 15px 0; 
+            background-color: #334155;
+            border: 3px solid #64748B;
+            border-radius: 8px; 
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.25rem; 
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .pyramid-level:hover {
+            transform: scale(1.05);
+            background-color: #475569;
+            border-color: #93C5FD;
+        }
+
+        .option-disabled-by-clue {
+            background-color: #1E293B !important; 
+            color: #64748B !important; 
+            cursor: not-allowed;
+            pointer-events: none; 
+            opacity: 0.7;
+            border: 1px dashed #64748B;
+        }
+
+        .modal-content {
+            animation: fadeInScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .icon-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #475569; 
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+        
+        .icon-button:hover {
+            background: #64748B; 
+        }
+        
+        .info-tab {
+            background-color: #1E293B; 
+            border: 1px solid #475569; 
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+            color: #94A3B8; 
+            font-style: italic;
+            transition: all 0.3s ease;
+        }
+
+        #hint-tab-button {
+            background-color: #475569;
+            color: #93C5FD;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #hint-tab-button:hover {
+            background-color: #64748B;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen stars-background"> 
+    
+<div id="main-screen" class="flex flex-col items-center justify-center min-h-screen space-y-8 p-4 relative">
+    
+    <button onclick="goToWebsiteHome()" class="icon-button absolute top-4 right-4 text-2xl" title="Web Sitesi Ana Sayfa">
+        <i class="fas fa-home"></i>
+    </button>
+    
+        <h1 class="game-title text-center font-extrabold text-teal-400">
+        Catch the Rocket
+    </h1>
+    
+    <button onclick="startGame()" class="px-10 py-5 bg-blue-600 rounded-2xl shadow-lg hover:bg-blue-500 transform transition duration-300 hover:scale-110 active:scale-95 text-2xl font-bold">
+        <i class="fas fa-rocket mr-3"></i> Start Climb
+    </button>
+</div>
+
+<div id="game-screen" class="hidden w-full h-screen flex relative">
+    <button onclick="goToWebsiteHome()" class="icon-button absolute top-4 right-4 text-2xl" title="Web Sitesi Ana Sayfa">
+        <i class="fas fa-home"></i>
+    </button>
+    
+    <div id="progression-container" class="flex-shrink-0 bg-slate-900/50 flex items-center justify-center">
+        <div id="rocket" class=""><i class="fas fa-rocket"></i></div> 
+        <div id="ladder-container"> </div>
+        <div id="climber"><i class="fas fa-person-walking"></i></div>
+        <div id="rank-display"></div> 
+    </div>
+    
+    <div class="flex-grow flex flex-col items-center justify-center space-y-4 p-8">
+    <h2 class="text-3xl font-semibold text-sky-300 mb-6">Choose Question Difficulty</h2>
+        <div id="pyramid-container" class="w-full max-w-sm flex flex-col">
+            </div>
+        <div class="mt-8 text-xl">
+            Score: <span id="step-counter" class="font-bold text-yellow-400">0 / 500</span>
+        </div>
+        <p class="text-lg text-white mt-4">Current Rank: <span id="current-rank-name" class="font-bold text-yellow-400">Newcomer</span></p>
+        
+        <div class="flex items-center space-x-2 mt-4 text-xl font-bold p-3 bg-gray-700/50 rounded-lg">
+            <p>Joker Credits:</p>
+            <span id="joker-count-main" class="font-bold text-yellow-400 text-2xl">0</span>
+            <i class="fas fa-lightbulb text-purple-400 ml-1"></i>
+        </div>
+
+    </div>
+</div>
+
+<div id="question-box" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="modal-content bg-gray-800 p-8 rounded-2xl w-full max-w-4xl space-y-6 shadow-2xl border-4 border-blue-500 relative flex">
+        
+        <div id="question-right-panel" class="w-1/2 pr-4 flex flex-col relative border-r border-gray-700"> 
+            
+            <button id="close-question-button" onclick="confirmExitQuestion()" class="icon-button absolute" title="Soruyu Kapat">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h3 id="question-header" class="text-2xl font-bold text-blue-300 mb-4 border-b border-gray-700 pb-2">
+                <i class="fas fa-question-circle mr-2"></i> Soru
+            </h3>
+            
+            <div id="question-points" class="text-sm text-yellow-300 mb-1"></div>
+            <p id="question-text" class="text-xl font-medium text-white mb-6 flex-grow"></p>
+            
+            <div class="flex flex-col space-y-3 pt-4 border-t border-gray-700">
+                    <button id="hint-tab-button" onclick="toggleHint()" class="flex items-center justify-center bg-gray-700 hover:bg-gray-600 p-2 rounded-lg transition-all">
+                    <i class="fas fa-info-circle mr-2"></i> Hint
+                </button>
+                
+                <div id="actual-hint-content" class="info-tab hidden text-center border-sky-400">
+                    <i class="fas fa-search mr-2 text-sky-300"></i>
+                    <span id="hint-text" class="font-semibold text-white"></span>
+                </div>
+                
+                <div id="joker-status-tab" class="info-tab text-center border-purple-400">
+                    <i class="fas fa-lightbulb mr-2 text-purple-300"></i>
+                    <span id="joker-info-text" class="font-semibold text-white"></span>
+                </div>
+
+                <div class="flex justify-center pt-2">
+                        <button id="joker-button" onclick="useJoker()" disabled 
+                            class="px-5 py-2 bg-purple-600 rounded-xl shadow-lg hover:bg-purple-500 transform transition duration-200 hover:scale-105 active:scale-95 font-semibold text-white">
+                        <i class="fas fa-eraser mr-2"></i> Remove 2 Options (<span id="joker-count-modal">0</span>)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-1/2 pl-4 flex flex-col relative">
+            <h3 class="text-2xl font-bold text-sky-400 mb-6 border-b border-gray-700 pb-2 text-center">
+                <i class="fas fa-check-circle mr-2"></i> Answer Options
+            </h3>
+
+            <div id="answer-options" class="flex flex-col space-y-4 flex-grow">
+                </div>
+        </div>
+    </div>
+</div>
+<div id="confirm-exit-box" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="modal-content bg-red-800 p-8 rounded-2xl w-full max-w-sm text-center space-y-4 shadow-2xl border-4 border-red-500">
+        <h3 class="text-3xl font-extrabold text-yellow-300"><i class="fas fa-exclamation-triangle mr-2"></i> WARNING!</h3>
+        <p class="text-xl text-white">You are about to exit the question without answering.</p>
+        <p class="text-lg text-red-200 font-bold">
+            Are you sure? If you exit you will lose <span id="penalty-score" class="text-2xl"></span> points.
+        </p>
+        <div class="flex justify-center space-x-4 pt-4">
+            <button onclick="exitQuestionPenalty()" class="px-6 py-3 bg-red-600 rounded-xl shadow-lg hover:bg-red-700 transform transition duration-200 font-semibold">
+                <i class="fas fa-check mr-2"></i> Yes, Exit
+            </button>
+            <button onclick="returnToQuestion()" class="px-6 py-3 bg-gray-700 rounded-xl shadow-lg hover:bg-gray-600 transform transition duration-200 font-semibold">
+                <i class="fas fa-times mr-2"></i> Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<div id="rank-up-box" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="modal-content bg-slate-700 p-8 rounded-2xl w-full max-w-md text-center space-y-4 shadow-2xl border-4 border-yellow-500">
+        <h3 class="text-4xl font-extrabold text-yellow-300">RANK UP!</h3>
+        <p class="text-xl">Congratulations, you are now ranked <span id="new-rank-name" class="font-bold text-white"></span>!</p>
+        <p id="joker-message" class="text-lg font-semibold text-purple-300 hidden">
+            <i class="fas fa-lightbulb mr-2"></i> You gained a new Joker Credit!
+        </p>
+        <button onclick="closeRankUpBox()" class="px-8 py-3 bg-yellow-600 rounded-xl shadow-lg hover:bg-yellow-500 transform transition duration-200">
+            <i class="fas fa-thumbs-up mr-2"></i> Continue
+        </button>
+    </div>
+</div>
+
+<div id="game-over-box" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="modal-content bg-gray-900 p-8 rounded-2xl w-full max-w-md text-center space-y-6 shadow-2xl border-4 border-red-500">
+    <h3 class="text-5xl font-extrabold text-red-400">MISSION FAILED!</h3>
+    <p class="text-lg">Unfortunately you answered incorrectly and your climb has ended. The Shuttle cannot launch.</p>
+        <div class="flex justify-center space-x-4 pt-4">
+                <button onclick="restartGame()" class="px-6 py-3 bg-blue-600 rounded-xl shadow-lg hover:bg-blue-500 transform transition duration-200 hover:scale-105 active:scale-95 font-semibold">
+                <i class="fas fa-redo mr-2"></i> Restart
+            </button>
+            <button onclick="goToWebsiteHome()" class="px-6 py-3 bg-gray-700 rounded-xl shadow-lg hover:bg-gray-600 transform transition duration-200 hover:scale-105 active:scale-95 font-semibold">
+                <i class="fas fa-home mr-2"></i> Home
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="win-box" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="modal-content bg-gray-900 p-8 rounded-2xl w-full max-w-md text-center space-y-6 shadow-2xl border-4 border-green-500">
+        <h3 class="text-5xl font-extrabold text-green-400">READY TO LAUNCH!</h3>
+        <p class="text-lg">You have reached the Shuttle with a total of <b id="final-score" class="text-yellow-400"></b> points!</p>
+        <p class="text-xl text-white font-bold">
+            "Captain, mission complete! Proceed to the control panel and start the countdown. We are heading to the Moon!"
+        </p>
+        <a href="{% url 'explore' %}" onclick="goToWebsiteHome()" class="px-8 py-4 bg-green-600 rounded-xl shadow-lg hover:bg-green-500 transform transition duration-200 hover:scale-105 active:scale-95 font-semibold text-xl inline-flex items-center justify-center text-center text-white">
+            <i class="fas fa-bolt mr-2"></i> Launch!
+        </a>
+    </div>
+</div>
+
+<script>
+    // --- Oyun Verileri ve Durumu ---
+    let currentScore = 0; 
+    const totalGoalScore = 500; 
+    const pointsPerStep = 10; 
+    let jokerCount = 1; 
+    let isJokerUsedOnCurrentQuestion = false; 
+    
+    // Rütbe Tanımlamaları: Puan eşiği büyükten küçüğe sıralanır.
+    const ranks = [
+        { score: 490, name: "Moon Commander", color: "#FBBF24" }, 
+        { score: 400, name: "Star Fleet", color: "#A855F7", grantsJoker: true }, 
+        { score: 300, name: "Planet Conqueror", color: "#EC4899", grantsJoker: true }, 
+        { score: 200, name: "Space Explorer", color: "#34D399", grantsJoker: true }, 
+        { score: 100, name: "Cosmic Scout", color: "#F97316", grantsJoker: true }, 
+        { score: 50, name: "Meteor Hunter", color: "#6366F1" }, 
+        { score: 0, name: "Newcomer", color: "#E2E8F0" } 
+    ];
+
+    let currentRank = ranks[ranks.length - 1]; 
+    let lastAchievedRankScore = 0; 
+
+    // Question bank: data will be fetched from server and used here
+    let questionsData = [];
+    let questionBank = {};
+    let fullQuestionList = [];
+    let usedQuestionIds = new Set();
+    let currentQuiz = null;
+
+    async function loadQuestionsFromServer() {
+        try {
+            const resp = await fetch("{% url 'game_questions' %}");
+            if (!resp.ok) throw new Error('Network response was not ok');
+            const payload = await resp.json();
+            const serverQs = payload.questions || [];
+
+            questionsData = serverQs.map(sq => {
+                const opts = sq.choices || [];
+                const correctIndex = opts.indexOf(sq.answer);
+                return {
+                    scoreValue: sq.points || 0,
+                    question: sq.question || '',
+                    options: opts,
+                    correct: correctIndex >= 0 ? correctIndex : 0,
+                    hint: sq.hint || ''
+                };
+            });
+
+            // group and build lists
+            const groupedQuestions = {};
+            questionsData.forEach(q => {
+                if (!groupedQuestions[q.scoreValue]) groupedQuestions[q.scoreValue] = [];
+                groupedQuestions[q.scoreValue].push(q);
+            });
+            questionBank = groupedQuestions;
+
+            fullQuestionList = [];
+            let idCounter = 0;
+            Object.keys(questionBank).forEach(score => {
+                questionBank[score].forEach(q => {
+                    q.id = `${score}-${idCounter++}`;
+                    fullQuestionList.push(q);
+                });
+            });
+
+            usedQuestionIds = new Set();
+            console.log('Loaded', fullQuestionList.length, 'questions from DB');
+        } catch (err) {
+            console.error('Error loading questions from server:', err);
+        }
+    }
+
+    // Load at startup
+    loadQuestionsFromServer();
+
+
+    // --- Game flow and navigation functions ---
+    function startGame() {
+        currentScore = 0;
+        jokerCount = 1; 
+        isJokerUsedOnCurrentQuestion = false; 
+        currentRank = ranks[ranks.length - 1];
+        lastAchievedRankScore = 0;
+        usedQuestionIds.clear(); 
+        
+        document.getElementById('climber').classList.remove('falling'); 
+        document.getElementById('climber').style.transform = 'rotate(0deg)'; 
+        document.getElementById('rocket').classList.remove('ready'); 
+        
+    // Make the rocket angled at start
+        document.getElementById('rocket').style.transform = 'translateX(-50%) rotate(45deg)'; 
+
+        initGameView();
+        updateRank(true); 
+    updateJokerDisplay(); 
+        showScreen('game-screen');
+    }
+
+    function restartGame() {
+        closeAllModals();
+        startGame();
+    }
+    
+    // Navigation helper
+    function goToWebsiteHome() {
+    // Uses Django url to return (explore page)
+        window.location.href = "{% url 'explore' %}";
+    }
+    
+    function showScreen(screenId) {
+        document.querySelectorAll('#main-screen, #game-screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function closeAllModals() {
+        document.querySelectorAll('#question-box, #game-over-box, #win-box, #rank-up-box, #confirm-exit-box').forEach(m => m.classList.add('hidden'));
+    }
+    
+    function closeConfirmExit() {
+        document.getElementById('confirm-exit-box').classList.add('hidden');
+    }
+    
+    // Cancel button behavior: return to question modal
+    function returnToQuestion() {
+        document.getElementById('confirm-exit-box').classList.add('hidden');
+        document.getElementById('question-box').classList.remove('hidden');
+    }
+
+    function closeRankUpBox() {
+        document.getElementById('rank-up-box').classList.add('hidden');
+    }
+
+    // --- Game area and visualization ---
+    function initGameView() {
+        createLadder();
+        createPyramid(); 
+        updateClimberPosition();
+        updateStepCounter();
+    }
+
+    function createLadder() {
+        const ladder = document.getElementById('ladder-container');
+        ladder.innerHTML = '';
+        const visualSteps = totalGoalScore / pointsPerStep; 
+        
+        const sortedRanks = [...ranks].sort((a, b) => a.score - b.score);
+
+        for (let i = 0; i < visualSteps; i++) {
+            const step = document.createElement('div');
+            step.classList.add('ladder-step');
+            
+            const stepScore = (i + 1) * pointsPerStep; 
+
+            let stepColor = sortedRanks[0].color; 
+
+            for (let j = 0; j < sortedRanks.length; j++) {
+                if (stepScore >= sortedRanks[j].score) {
+                    stepColor = sortedRanks[j].color;
+                } else {
+                    break; 
+                }
+            }
+
+            step.style.backgroundColor = stepColor;
+            ladder.appendChild(step);
+        }
+    }
+    
+    function updateRank(force = false) {
+        const climber = document.getElementById('climber');
+        const currentRankElement = document.getElementById('current-rank-name');
+        const jokerMessageElement = document.getElementById('joker-message');
+        jokerMessageElement.classList.add('hidden'); 
+        
+        let newRank = ranks.find(rank => currentScore >= rank.score);
+        
+        if (newRank) {
+            
+            if (force || newRank.score > currentRank.score) {
+                
+                if (newRank.grantsJoker && newRank.score > currentRank.score) {
+                    jokerCount++;
+                    jokerMessageElement.classList.remove('hidden');
+                    updateJokerDisplay(); 
+                }
+                
+                currentRank = newRank;
+                
+                climber.style.color = currentRank.color;
+                currentRankElement.textContent = currentRank.name;
+                currentRankElement.style.color = currentRank.color;
+
+                if (currentRank.score > 0 && currentRank.score > lastAchievedRankScore) {
+                    lastAchievedRankScore = currentRank.score;
+                    document.getElementById('new-rank-name').textContent = currentRank.name;
+                    document.getElementById('rank-up-box').classList.remove('hidden');
+                }
+            } else if (force) {
+                climber.style.color = currentRank.color;
+                currentRankElement.textContent = currentRank.name;
+                currentRankElement.style.color = currentRank.color;
+            }
+        }
+    }
+    
+    function updateClimberPosition() {
+        const climber = document.getElementById('climber');
+        const ladderContainer = document.getElementById('ladder-container');
+        const rocket = document.getElementById('rocket'); 
+        
+        const baseBottom = 10; 
+
+        const ladderHeight = ladderContainer.offsetHeight - parseInt(getComputedStyle(ladderContainer).paddingBottom);
+        
+        const visualSteps = totalGoalScore / pointsPerStep; 
+        
+        const roundedScore = Math.floor(currentScore / pointsPerStep) * pointsPerStep;
+
+        const currentVisualStep = Math.min(visualSteps, roundedScore / pointsPerStep);
+        
+        const stepHeightUnit = ladderHeight / (visualSteps -1); 
+        
+        const newBottom = (currentVisualStep * stepHeightUnit) + baseBottom - (climber.offsetHeight / 2);
+        
+        climber.style.bottom = `${newBottom}px`;
+
+        if (currentScore >= totalGoalScore) {
+            rocket.classList.add('ready'); 
+        } else {
+            rocket.classList.remove('ready');
+        }
+        
+        updateRank(); 
+    }
+
+    // Removed parentheses count in question selection
+    function createPyramid() {
+        const container = document.getElementById('pyramid-container');
+        container.innerHTML = '';
+        
+        const pointLevels = Object.keys(questionBank).map(Number).sort((a, b) => b - a);
+        const fixedWidth = 300; 
+
+        pointLevels.forEach((points) => {
+             const level = document.createElement('div');
+             
+             const availableCount = questionBank[points] ? questionBank[points].filter(q => !usedQuestionIds.has(q.id)).length : 0;
+             
+             level.classList.add('pyramid-level');
+             // Only show points and the word "Question"
+             level.textContent = `${points} Point Question`; 
+             level.onclick = () => selectDifficulty(points);
+             
+             if(availableCount === 0) {
+                level.classList.add('opacity-50', 'cursor-not-allowed');
+                level.onclick = null;
+             }
+
+             level.style.width = `${fixedWidth}px`; 
+
+             container.appendChild(level);
+        });
+    }
+    
+    function updateStepCounter() {
+        document.getElementById('step-counter').textContent = `${currentScore} / ${totalGoalScore}`;
+    }
+
+    function updateJokerDisplay() {
+        document.getElementById('joker-count-main').textContent = jokerCount; 
+        
+        const modalCountElement = document.getElementById('joker-count-modal');
+        const button = document.getElementById('joker-button');
+        const jokerStatusTab = document.getElementById('joker-status-tab'); 
+
+        modalCountElement.textContent = jokerCount;
+        
+        if (isJokerUsedOnCurrentQuestion) {
+            document.getElementById('joker-info-text').innerHTML = `<i class="fas fa-magic mr-1 text-purple-400"></i> **Joker used!** Two incorrect options were removed.`;
+        } else if (jokerCount > 0) {
+            document.getElementById('joker-info-text').innerHTML = `**Joker Effect:** 2 of the 4 options will be removed.`;
+        } else {
+            document.getElementById('joker-info-text').innerHTML = `**No Joker Credits.** Rank up to earn more.`;
+        }
+        
+        jokerStatusTab.classList.remove('hidden'); 
+
+
+        if (jokerCount > 0 && currentQuiz && !isJokerUsedOnCurrentQuestion) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+        }
+    }
+
+    function toggleHint() {
+        const hintContent = document.getElementById('actual-hint-content');
+        const hintButton = document.getElementById('hint-tab-button');
+        
+        if (hintContent.classList.contains('hidden')) {
+            hintContent.classList.remove('hidden');
+            hintButton.innerHTML = '<i class="fas fa-info-circle mr-2"></i> Hint (Close)'; 
+        } else {
+            hintContent.classList.add('hidden');
+            hintButton.innerHTML = '<i class="fas fa-info-circle mr-2"></i> Hint'; 
+        }
+    }
+
+
+    // --- Question and answer mechanism ---
+    function selectDifficulty(points) {
+        let availableQuestions = questionBank[points] ? questionBank[points].filter(q => !usedQuestionIds.has(q.id)) : [];
+        
+        if (availableQuestions.length === 0) {
+            return; 
+        }
+
+        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+        currentQuiz = availableQuestions[randomIndex];
+        
+        let indexedOptions = currentQuiz.options.map((opt, index) => ({ text: opt, index: index }));
+        const originalCorrectAnswerText = currentQuiz.options[currentQuiz.correct]; 
+        
+        indexedOptions.sort(() => Math.random() - 0.5);
+        
+        currentQuiz.correct = indexedOptions.findIndex(opt => opt.text === originalCorrectAnswerText);
+        currentQuiz.options = indexedOptions.map(opt => opt.text);
+        
+        openQuestion(currentQuiz);
+    }
+    
+    function openQuestion(quiz) {
+    // Show points as a small label above the question and remove bracketed score prefixes
+    const pointsEl = document.getElementById('question-points');
+    if (pointsEl) pointsEl.textContent = `Points: ${quiz.scoreValue}`;
+    document.getElementById('question-text').textContent = quiz.question;
+    document.getElementById('question-header').textContent = `Question`;
+        
+        const answersDiv = document.getElementById('answer-options');
+        answersDiv.innerHTML = '';
+        
+        isJokerUsedOnCurrentQuestion = false;
+        
+    document.getElementById('actual-hint-content').classList.add('hidden');
+    document.getElementById('hint-tab-button').innerHTML = '<i class="fas fa-info-circle mr-2"></i> Hint';
+    document.getElementById('hint-text').textContent = quiz.hint || "No hint available."; 
+        
+        quiz.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.textContent = opt;
+            btn.dataset.index = idx; 
+            btn.classList.add('px-5', 'py-3', 'bg-gray-700', 'rounded-lg', 'hover:bg-blue-600', 'text-left', 'shadow-md', 'transition', 'duration-200', 'font-medium');
+            btn.onclick = () => answerQuestion(idx);
+            btn.disabled = false; 
+            answersDiv.appendChild(btn);
+        });
+        
+        updateJokerDisplay(); 
+        document.getElementById('question-box').classList.remove('hidden');
+    }
+
+    function answerQuestion(selectedIndex) {
+        document.getElementById('question-box').classList.add('hidden');
+        
+        if (selectedIndex === currentQuiz.correct) {
+                usedQuestionIds.add(currentQuiz.id);
+            currentScore += currentQuiz.scoreValue; 
+            
+            if (currentScore > totalGoalScore) {
+                currentScore = totalGoalScore;
+            }
+
+            updateClimberPosition();
+            updateStepCounter();
+            createPyramid(); 
+            
+            if (currentScore >= totalGoalScore) {
+                document.getElementById('final-score').textContent = totalGoalScore;
+                document.getElementById('win-box').classList.remove('hidden');
+            }
+        } else {
+            showGameOver();
+        }
+    }
+    
+    function useJoker() {
+        if (jokerCount <= 0 || !currentQuiz || isJokerUsedOnCurrentQuestion) return;
+
+        jokerCount--;
+        isJokerUsedOnCurrentQuestion = true;
+        
+        const answerOptions = document.getElementById('answer-options').children;
+        const correctIndex = currentQuiz.correct;
+        const optionsCount = currentQuiz.options.length; 
+
+        let wrongIndices = [];
+        for (let i = 0; i < optionsCount; i++) {
+            if (i !== correctIndex) {
+                wrongIndices.push(i); 
+            }
+        }
+        
+        const disabledIndices = [];
+
+        if (wrongIndices.length > 0) {
+            const randomIndexToDisable1 = Math.floor(Math.random() * wrongIndices.length);
+            disabledIndices.push(wrongIndices[randomIndexToDisable1]);
+            wrongIndices.splice(randomIndexToDisable1, 1); 
+        }
+        
+        if (wrongIndices.length > 0) {
+            const randomIndexToDisable2 = Math.floor(Math.random() * wrongIndices.length);
+            disabledIndices.push(wrongIndices[randomIndexToDisable2]);
+        }
+        
+        Array.from(answerOptions).forEach((btn) => {
+            const index = parseInt(btn.dataset.index);
+            
+            if (disabledIndices.includes(index)) {
+                btn.classList.add('option-disabled-by-clue');
+                btn.disabled = true; 
+            }
+        });
+        
+        updateJokerDisplay(); 
+    }
+
+
+    function showGameOver() {
+        const climber = document.getElementById('climber');
+        const currentBottomValue = climber.style.bottom;
+        climber.style.bottom = currentBottomValue; 
+
+        climber.classList.add('falling');
+
+        setTimeout(() => {
+            climber.style.bottom = '-50px'; 
+        }, 0);
+
+        setTimeout(() => {
+            document.getElementById('game-over-box').classList.remove('hidden');
+        }, 1000); 
+    }
+    
+    // Confirm before closing question modal
+    function confirmExitQuestion() {
+        if (!currentQuiz) return;
+        
+        const penalty = currentQuiz.scoreValue;
+        document.getElementById('penalty-score').textContent = penalty;
+        
+        document.getElementById('question-box').classList.add('hidden');
+        document.getElementById('confirm-exit-box').classList.remove('hidden');
+    }
+
+    // Exit question and apply penalty
+    function exitQuestionPenalty() {
+        if (!currentQuiz) return;
+
+        const penalty = currentQuiz.scoreValue;
+        currentScore -= penalty;
+        
+        if (currentScore < 0) {
+            currentScore = 0;
+        }
+
+        const climber = document.getElementById('climber');
+        
+        climber.classList.add('falling');
+        climber.style.transform = 'rotate(180deg)'; 
+
+        updateClimberPosition();
+        updateStepCounter();
+        
+        setTimeout(() => {
+            climber.classList.remove('falling');
+            climber.style.transform = 'rotate(0deg)'; 
+        }, 500); 
+
+        closeAllModals(); 
+        currentQuiz = null; 
+        createPyramid(); 
+    }
+    
+    window.onload = () => {
+        let idCounter = 0;
+        Object.keys(questionBank).forEach(score => {
+            questionBank[score].forEach(q => q.id = idCounter++);
+        });
+        
+        showScreen('main-screen');
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NASA Space Apps Challenge</title>
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+<body>
+<div id="stars"></div>
+<div class="crawl" id="crawlText">
+  <p>Team Kumquat embarked on the Meteor Madness challenge within NASA Space Apps Challenge 2025 with an innovative perspective aimed at raising awareness about meteors and asteroids.</p>
+  <p>What matters to us is not just analyzing scientific data, but making this information accessible, understandable, and engaging for all segments of society. That's why our approach centers on three fundamental elements: notifications of approaching asteroids, making the learning process enjoyable through educational games, and supporting knowledge with instructional videos.</p>
+  <p>The most entertaining aspect of our projects is gamification. As participants discover meteors in the sky, they encounter new questions at every step and increase their scores as they learn. In the finale, a special question awaits them to test their knowledge.</p>
+  <p>Additionally, through real-time notifications, users can stay instantly informed about approaching asteroids, reinforce this information through games, and gain deeper understanding through instructional videos.</p>
+  <p>As Team Kumquat, we aim to transform science from a field accessible only to experts into an understandable, enjoyable, and inspiring journey for everyone. Because we believe that when learning combines with entertainment, it creates a much more powerful impact.</p>
+</div>
+<div class="bottom-panel" id="bottomPanel">
+  <a href="/explore"><button id="startBtn">BAŞLAT</button></a>
+</div>
+<script src="{% static 'js/index.js' %}"></script>
+</body>
+</html>

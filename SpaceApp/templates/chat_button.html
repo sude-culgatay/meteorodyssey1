@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>NASA Space App</title>
+  <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+</head>
+<body>
+  <!-- Mevcut sayfa içeriğin burada olmalı -->
+
+  <!-- Floating chat root -->
+  <div id="chat-root" aria-live="polite">
+    <button id="chat-toggle" title="Soru Sor">💬</button>
+
+    <div id="chat-window" aria-hidden="true">
+      <div id="chat-header">
+        <span>Soru Sor</span>
+        <button id="chat-close" aria-label="Kapat">×</button>
+      </div>
+
+      <div id="chat-messages" role="log"></div>
+
+      <form id="chat-form">
+        <input id="chat-input" autocomplete="off" placeholder="Mesajınızı yazın..." />
+        <button type="submit">Gönder</button>
+      </form>
+    </div>
+  </div>
+  <script src="{% static 'js/chat.js' %}"></script>
+</body>
+</html>

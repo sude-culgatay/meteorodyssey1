@@ -1,0 +1,33 @@
+{% load static %}
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NASA Video Kutuları</title>
+  <link rel="stylesheet" href="{% static 'css/videos.css' %}">
+</head>
+<body>
+
+  <!-- Kağıt Destesi -->
+  <div class="wrap" id="wrap">
+    <div class="stack" id="stack"></div>
+  </div>
+
+  <!-- Popup -->
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popup">
+    <div class="popup-header">
+      <h3 id="popupTitle">Videolar</h3>
+      <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn">‹</button>
+        <span class="page-indicator" id="pageIndicator">1/4</span>
+        <button class="nav-btn" id="nextBtn">›</button>
+        <button class="btn secondary" id="closePopup">Kapat</button>
+      </div>
+    </div>
+    <div class="box-grid" id="boxGrid"></div>
+  </div>
+  <script src="{% static 'js/videos.js' %}"></script>
+</body>
+</html>

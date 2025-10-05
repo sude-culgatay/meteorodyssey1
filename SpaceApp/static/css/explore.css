@@ -1,0 +1,426 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a2e, #16213e, #1e3c72);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #ff6b35, #4a90e2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+        
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .nasa-eyes-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nasa-eyes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .nasa-eyes-header h3 {
+            font-size: 1.5em;
+            color: #ff6b35;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .toggle-btn.active {
+            background: linear-gradient(45deg, #ff6b35, #ff4500);
+            border-color: #ff6b35;
+        }
+        
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        #nasa-eyes-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 15px;
+            background: #000;
+        }
+        
+        .simulation-controls {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-row {
+            /* Centered block with 4 equal columns for aesthetic layout */
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin: 0 auto 20px;
+            max-width: 880px; /* 4 * ~220px — keeps buttons centered on wide screens */
+            align-items: center;
+            justify-items: center;
+        }
+
+        /* Force fixed box size for "Çıtır" buttons inside control-row */
+        .control-row .btn {
+            /* Fill the grid cell so all buttons are equal width and centered */
+            width: 100%;
+            height: 50px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border-radius: 24px;
+        }
+
+        /* Responsive: on smaller screens switch to auto-fit columns */
+        @media (max-width: 900px) {
+            .control-row {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                max-width: 100%;
+                padding: 0 10px;
+            }
+            .control-row .btn { width: 100%; }
+        }
+        
+        .btn {
+            background-color: #ff6b35;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 22px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        /* Ensure anchor elements styled as buttons don't show underline */
+        a.btn, a.btn:link, a.btn:visited, a.btn:hover, a.btn:active {
+            text-decoration: none;
+            color: inherit; /* keep color from .btn */
+        }
+
+        /* Strong override for any global link styles that might add underlines */
+        a.btn { text-decoration: none !important; }
+        
+        
+        .btn-secondary {
+            background-color: #4a90e2;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+        
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .asteroid-list-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+        
+        .live-indicator {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .asteroid-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 18px;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.4s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .asteroid-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .asteroid-card:hover::before {
+            left: 100%;
+        }
+        
+        .asteroid-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ff6b35;
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.2);
+        }
+        
+        .asteroid-card.selected {
+            border-color: #ff6b35;
+            background: rgba(255, 107, 53, 0.15);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .asteroid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .asteroid-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .asteroid-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            margin-left: 10px;
+        }
+        
+        .asteroid-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+        }
+        
+        .asteroid-id {
+            font-size: 0.85em;
+            color: white;
+            margin-top: 4px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+        }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        
+        .risk-safe { 
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .risk-watch { 
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            color: #000;
+        }
+        
+        .risk-hazard { 
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+            color: white;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+        
+        .asteroid-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: linear-gradient(45deg, #ff6b35, #ff4500);
+            border-color: #ff6b35;
+        }
+        
+        .impact-details {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            border-left: 4px solid #ff6b35;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .detail-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ff6b35;
+            margin-bottom: 5px;
+        }
+        
+        .detail-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .asteroid-list-section {
+                max-height: 60vh;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .control-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .asteroid-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .asteroid-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .asteroid-image {
+                margin: 10px 0 0 0;
+            }
+        }

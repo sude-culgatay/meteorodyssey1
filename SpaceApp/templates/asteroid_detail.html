@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ asteroid.name }} Details - NASA Analysis</title>
+    <link rel="stylesheet" href="{% static 'css/asteroid_detail.css' %}">
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🪨 {{ asteroid.name }} (ID: {{ asteroid.id }}) Asteroid Details</h1>
+            <div class="nasa-badge">📡 Official NASA JPL Data</div>
+        </div>
+
+        {% if impact_probability != "0.0%" %}
+            <div class="probability-alert">
+                <div class="probability-text">⚠️ Probability of Impact with Earth: {{ impact_probability }}</div>
+            </div>
+        {% endif %}
+
+        <div class="main-grid">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">🔬</div>
+                    <div class="section-title">{{ asteroid.name }} Asteroid - NASA Data</div>
+                </div>
+                
+                <div class="data-source">
+                    <strong>📊 Data Source:</strong><br>
+                    <a href="{{ asteroid.jpl_url }}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: ivory;">
+                        {{ asteroid.jpl_url }}
+                    </a>
+                </div>
+                
+                <div class="impact-stats">
+                    <div class="stat-item">
+                        <span class="stat-value">{{ asteroid.diameter_min }} m - {{ asteroid.diameter_max }} m</span>
+                        <div class="stat-label">Average Diameter</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ asteroid.abs_magnitude }} H</span>
+                        <div class="stat-label">Absolute Magnitude (H)</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ closest_approach.velocity_kph }} km/s</span>
+                        <div class="stat-label">Velocity</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ closest_approach.distance_km }} km</span>
+                        <div class="stat-label">Closest Approach Distance to Earth</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ asteroid.first_observation_date }}</span>
+                        <div class="stat-label">Discovery Date (yyyy-mm-dd)</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ asteroid.last_observation_date }}</span>
+                        <div class="stat-label">Last Observation Date (yyyy-mm-dd)</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ asteroid.orbital_period }} days</span>
+                        <div class="stat-label">Orbital Period (days)</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ asteroid.mean_motion }} °/day</span>
+                        <div class="stat-label">Mean Motion (°/day)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon">⚡</div>
+                    <div class="section-title">Speed & Distance to Earth Analysis</div>
+                </div>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <div class="comparison-icon">✈️</div>
+                        <div class="comparison-title">Compared to an Average Passenger Plane</div>
+                        <div class="comparison-value">{{ speed_comparison_plane }}</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">times faster</div>
+                    </div>
+                    <div class="comparison-card">
+                        <div class="comparison-icon">🔫</div>
+                        <div class="comparison-title">Compared to an Average Bullet</div>
+                        <div class="comparison-value">{{ speed_comparison_bullet }}</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">times faster</div>
+                    </div>
+                    <div class="comparison-card">
+                        <div class="comparison-icon">🏎️</div>
+                        <div class="comparison-title">Compared to a Formula 1 Car</div>
+                        <div class="comparison-value">{{ speed_comparison_f1 }}</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">times faster</div>
+                    </div>
+                    <div class="comparison-card">
+                        <div class="comparison-icon">🌎</div>
+                        <div class="comparison-title">Around the Earth's Circumference</div>
+                        <div class="comparison-value">{{ rotate_count }}</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">times around</div>
+                    </div>
+                    <div class="comparison-card">
+                        <div class="comparison-icon">🌙</div>
+                        <div class="comparison-title">Between Earth and the Moon</div>
+                        <div class="comparison-value">{{ earth_to_moon_count }}</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">times to the Moon</div>
+                    </div>
+                    <div class="comparison-card">
+                        <div class="comparison-icon">🗺️</div>
+                        <div class="comparison-title">Around the Continent of Asia</div>
+                        <div class="comparison-value">{{ asia_count }}</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">times around</div>
+                    </div>
+                </div>
+
+                <div id="chat-box"
+                    data-asteroid_name="{{ asteroid.name|escapejs }}"
+                    data-asteroid_diameter_min="{{ asteroid.diameter_min|escapejs }}"
+                    data-asteroid_diameter_max="{{ asteroid.diameter_max|escapejs }}"
+                    data-asteroid_magnitude="{{ asteroid.abs_magnitude|escapejs }}"
+                    data-asteroid_speed="{{ closest_approach.velocity_kph|escapejs }}"
+                    data-asteroid_distance="{{ closest_approach.distance_km|escapejs }}"
+                    data-asteroid_orbital_period="{{ asteroid.orbital_period|escapejs }}"
+                    data-asteroid_mean_motion="{{ asteroid.mean_motion|escapejs }}">
+                </div>
+            </div>
+
+            <iframe src="{{ asteroid.eyes_on_url }}" id="nasa-eyes-iframe"></iframe>
+        </div>
+
+        {% include 'chat_button.html' %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+#chat-root {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  font-family: Arial, sans-serif;
+}
+
+/* Yuvarlak açma/kapama butonu */
+#chat-toggle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  cursor: pointer;
+  font-size: 22px;
+  background: linear-gradient(135deg, #ff7b00, #ff4500); /* Turuncu->Kırmızı */
+  color: white;
+  transition: transform 0.2s ease;
+}
+#chat-toggle:hover { transform: scale(1.1); }
+
+/* Chat penceresi */
+#chat-window {
+  width: 320px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  overflow: hidden;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+/* Başlık */
+#chat-header {
+  padding: 10px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2563eb; /* Koyu mavi */
+  color: #fff;
+}
+#chat-header button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Mesaj alanı */
+#chat-messages {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+  background: #f9fafb;
+}
+
+/* Mesaj balonları */
+.msg {
+  margin-bottom: 10px;
+  max-width: 85%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  line-height: 1.4;
+  font-size: 14px;
+}
+.msg.user {
+  background: #2563eb;   /* Parlak mavi */
+  color: white;
+  margin-left: auto;
+  text-align: right;
+}
+.msg.bot {
+  background: #e5e7eb;   /* Açık gri */
+  color: #111827;
+  margin-right: auto;
+  text-align: left;
+}
+.typing {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* Form */
+#chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  background: #f3f4f6;
+}
+#chat-form input {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+#chat-form button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #ff7b00; /* Turuncu */
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#chat-form button:hover {
+  background: #e65c00; /* Daha koyu turuncu */
+}
